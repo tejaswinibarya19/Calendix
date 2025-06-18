@@ -21,3 +21,17 @@
 .cool-underline.show-underline::after{
     width: calc(100% +  16px);
 }
+
+form input, form select ,form textarea{
+    @apply border rounded-md;
+}
+
+form input,form textarea{
+    @apply block w-full p-2;
+}
+form label{
+    @apply mb-2 block p-1; 
+}
+form label span,sapn.label{
+    @apply  text-gray-600 text-xs font-bold uppercase;
+}
