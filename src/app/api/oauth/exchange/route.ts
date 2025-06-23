@@ -1,31 +1,31 @@
-import { nylasConfig } from "@/libs/nylas";
+import {nylas, nylasConfig} from "@/libs/nylas";
 import {session} from "@/libs/session";
-import { nylas } from "@/libs/nylas";
+import mongoose from "mongoose";
+import {redirect} from "next/navigation";
 import {NextRequest} from "next/server";
-import { redirect } from "next/navigation";
-export async function GET(req:NextRequest) {
 
+export async function GET(req: NextRequest) {
   console.log("Received callback from Nylas");
-  const url=new URL(req.url as string);
-  
+  const url = new URL(req.url as string);
   const code = url.searchParams.get('code');
-  console.log("code yaha hai",code);
-  if (!code) {
-    return Response.json("No authorization code returned from Nylas",{status:400});
 
+  if (!code) {
+    return Response.json("No authorization code returned from Nylas", {status: 400});
   }
-  const codeExchangePayload={
-    clientSecret:nylasConfig.apiKey,
-    clientId:nylasConfig.clientId as string,
-    redirectUri:nylasConfig.callbackUri,
+
+  const codeExchangePayload = {
+    clientSecret: nylasConfig.apiKey,
+    clientId: nylasConfig.clientId as string,
+    redirectUri: nylasConfig.callbackUri,
     code,
   };
 
-    const response = await nylas.auth.exchangeCodeForToken(codeExchangePayload);
-    const { grantId ,email} = response;
-    await session().set('grantId',grantId);
-    await session().set('email',email);
-    
-    redirect('/');
-  
-}; 
+  const response = await nylas.auth.exchangeCodeForToken(codeExchangePayload);
+  const { email } = response;
+
+  await mongoose.connect(process.env.MONGODB_URI as string);
+
+  await session().set('email', email);
+
+  redirect('/');
+}
